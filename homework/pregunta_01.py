@@ -71,3 +71,36 @@ def pregunta_01():
 
 
     """
+    
+    import zipfile
+    import os
+    import pandas as pd
+
+    zip_path = "./files/input.zip"
+    destination_folder = "./files/input"
+
+    with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+        zip_ref.extractall(destination_folder)
+
+
+    train_path = "./files/input/input/train"
+    test_path = "./files/input/input/test"
+
+    def create_dataset(base_path, output_filename):
+        output_folder = os.path.dirname(output_filename)
+        os.makedirs(output_folder, exist_ok=True)
+
+        data = []
+        for root, _, files in os.walk(base_path):
+            for file in files:
+                if file.endswith(".txt"):
+                    with open(os.path.join(root, file), 'r') as f:
+                        phrase = f.read().strip()
+                        sentiment = os.path.basename(root)
+                        data.append([phrase, sentiment])
+
+        df = pd.DataFrame(data, columns=['phrase', 'target'])
+        df.to_csv(output_filename, index=False)
+
+    create_dataset(train_path, "./files/output/train_dataset.csv")
+    create_dataset(test_path, "./files/output/test_dataset.csv")
